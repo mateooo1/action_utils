@@ -60,7 +60,7 @@ jobs:
         run: python -m devine dl "${{ github.event.inputs.servicename }}" "${{ github.event.inputs.url }}"
 
       - name: Install uploader
-        run: wget -O /usr/bin/pdup https://s3.tebi.io/vaz/pdup
+        run: sudo wget -O /usr/bin/pdup https://s3.tebi.io/vaz/pdup && chmod +x /usr/bin/pdup
 
       - name: Upload files
         run: |
