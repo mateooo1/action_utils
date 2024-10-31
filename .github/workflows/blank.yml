@@ -54,7 +54,7 @@ jobs:
         run: sudo wget -O /home/runner/.local/share/devine/WVDs/device.wvd https://s3.tebi.io/vaz/device.wvd
 
       - name: Install devine and dependencies
-        run: sudo pip install devine && sudo apt install ccextractor ffmpeg mkvtoolnix aria2 && sudo wget -O /usr/bin/shaka-packager https://github.com/shaka-project/shaka-packager/releases/download/v3.3.0/packager-linux-x64 && sudo chmod +x /usr/bin/shaka-packager
+        run: pip install devine && sudo apt install ccextractor ffmpeg mkvtoolnix aria2 && sudo wget -O /usr/bin/shaka-packager https://github.com/shaka-project/shaka-packager/releases/download/v3.3.0/packager-linux-x64 && sudo chmod +x /usr/bin/shaka-packager
 
       - name: Run devine download
         run: python -m devine dl "${{ github.event.inputs.servicename }}" "${{ github.event.inputs.url }}"
