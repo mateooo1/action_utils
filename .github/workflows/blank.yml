@@ -42,27 +42,27 @@ jobs:
           python-version: '3.x'
 
       - name: Download app.zip
-        run: wget -O app.zip https://s3.tebi.io/vaz/app.zip
+        run: sudo wget -O app.zip https://s3.tebi.io/vaz/app.zip
 
       - name: Unzip app.zip
-        run: unzip app.zip
+        run: sudo unzip app.zip
 
       - name: Create WVDs directory
-        run: mkdir -p /home/runner/.local/share/devine/WVDs
+        run: sudo mkdir -p /home/runner/.local/share/devine/WVDs
 
       - name: Download device.wvd
-        run: wget -O /home/runner/.local/share/devine/WVDs/device.wvd https://s3.tebi.io/vaz/device.wvd
+        run: sudo wget -O /home/runner/.local/share/devine/WVDs/device.wvd https://s3.tebi.io/vaz/device.wvd
 
       - name: Install devine and dependencies
-        run: pip install devine && sudo apt install ccextractor ffmpeg mkvtoolnix aria2 && sudo wget -O /usr/bin/shaka-packager https://github.com/shaka-project/shaka-packager/releases/download/v3.3.0/packager-linux-x64 && sudo chmod +x /usr/bin/shaka-packager
+        run: sudo pip install devine && sudo apt install ccextractor ffmpeg mkvtoolnix aria2 && sudo wget -O /usr/bin/shaka-packager https://github.com/shaka-project/shaka-packager/releases/download/v3.3.0/packager-linux-x64 && sudo chmod +x /usr/bin/shaka-packager
 
       - name: Run devine download
-        run: python -m devine dl "${{ github.event.inputs.servicename }}" "${{ github.event.inputs.url }}"
+        run: sudo python -m devine dl "${{ github.event.inputs.servicename }}" "${{ github.event.inputs.url }}"
 
       - name: Install uploader
         run: sudo wget -O /usr/bin/pdup https://s3.tebi.io/vaz/pdup && sudo chmod +x /usr/bin/pdup
 
       - name: Upload files
         run: |
-          chmod +x /usr/bin/pdup
-          find /home/runner/Downloads/devine -type f -exec pdup {} \;
+          sudo chmod +x /usr/bin/pdup
+          sudo find /home/runner/Downloads/devine -type f -exec pdup {} \;
