@@ -1,0 +1,68 @@
+name: DL
+
+on:
+  workflow_dispatch:
+    inputs:
+      servicename:
+        description: 'Service Name (e.g., ALL4, CBC, CTV)'
+        required: true
+        type: choice
+        options:
+          - ALL4
+          - CBC
+          - CTV
+          - ITV
+          - PLUTO
+          - RTE
+          - TUBI
+          - UKTV
+          - AUBC
+          - CBS
+          - DSCP
+          - MY5
+          - ROKU
+          - STV
+          - TVNZ
+          - iP
+      url:
+        description: 'URL to download content from'
+        required: true
+
+jobs:
+  download-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Download app.zip
+        run: wget -O app.zip https://s3.tebi.io/vaz/app.zip
+
+      - name: Unzip app.zip
+        run: unzip app.zip
+
+      - name: Create WVDs directory
+        run: mkdir -p /home/runner/.local/share/devine/WVDs
+
+      - name: Download device.wvd
+        run: wget -O /home/runner/.local/share/devine/WVDs/device.wvd https://s3.tebi.io/vaz/device.wvd
+
+      - name: Install devine
+        run: pip install devine
+
+      - name: Run devine download
+        run: python -m devine dl "${{ github.event.inputs.servicename }}" "${{ github.event.inputs.url }}"
+
+      - name: Install uploader
+        run: wget -O /usr/bin/pdup https://s3.tebi.io/vaz/pdup
+
+      - name: Upload files
+        run: |
+          chmod +x /usr/bin/pdup
+          find /home/runner/Downloads/devine -type f -exec pdup {} \;
