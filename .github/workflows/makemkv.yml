@@ -52,15 +52,24 @@ jobs:
         tar -xzf makemkv-oss-*.tar.gz
         tar -xzf makemkv-bin-*.tar.gz
 
+        # Find and enter the extracted directories for OSS and Bin
+        OSS_DIR=$(find . -maxdepth 1 -type d -name "makemkv-oss-*")
+        BIN_DIR=$(find . -maxdepth 1 -type d -name "makemkv-bin-*")
+        
+        if [ -z "$OSS_DIR" ] || [ -z "$BIN_DIR" ]; then
+          echo "Error: Required directories not found"
+          exit 1
+        fi
+
         # Build OSS package
-        cd makemkv-oss-*
+        cd "$OSS_DIR"
         ./configure
         make
         sudo make install
         cd ..
 
         # Build binary package
-        cd makemkv-bin-*
+        cd "$BIN_DIR"
         make
         sudo make install
         cd ..
