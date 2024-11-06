@@ -1,0 +1,87 @@
+name: Build MakeMKV AppImage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential pkg-config qt5-qmake qtbase5-dev \
+                                libavcodec-dev libavutil-dev libavformat-dev \
+                                zlib1g-dev libexpat1-dev libssl-dev fuse2 squashfs-tools wget
+
+    - name: Download MakeMKV source files
+      run: |
+        # Define URL to check for latest version
+        MAKEMKV_URL="https://forum.makemkv.com/forum/viewtopic.php?f=3&t=224"
+
+        # Define function to download latest MakeMKV
+        get_makemkv() {
+          local _dir="$1"
+          [ "" == "$_dir" ] && _dir='.'
+          local _PAGE=$(timeout -k 0 30 wget -qO - "$MAKEMKV_URL")
+          local _BIN=$(printf "%s" "$_PAGE" | grep -io 'https://www.makemkv.com/download/makemkv-bin-[^"]*' | head -n 1)
+          local _OSS=$(printf "%s" "$_PAGE" | grep -io 'https://www.makemkv.com/download/makemkv-oss-[^"]*' | head -n 1)
+          if [ "" != "$_BIN" ] && [ "" != "$_OSS" ]; then
+            wget -O "$_dir/$(basename "$_BIN")" "$_BIN" || return 1
+            wget -O "$_dir/$(basename "$_OSS")" "$_OSS" || return 1
+            return 0
+          fi
+          return 1
+        }
+
+        # Run the function to download MakeMKV
+        get_makemkv "$PWD"
+
+    - name: Extract and build MakeMKV
+      run: |
+        # Extract the source packages
+        tar -xzf makemkv-oss-*.tar.gz
+        tar -xzf makemkv-bin-*.tar.gz
+
+        # Build OSS package
+        cd makemkv-oss-*
+        ./configure
+        make
+        sudo make install
+        cd ..
+
+        # Build binary package
+        cd makemkv-bin-*
+        make
+        sudo make install
+        cd ..
+
+    - name: Package MakeMKV as AppImage
+      run: |
+        mkdir -p AppDir/usr
+        cp -r /usr/bin/makemkvcon AppDir/usr/bin/
+        cp -r /usr/share/makemkv AppDir/usr/share/
+
+        # Download linuxdeploy and AppImage tools
+        wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+        chmod +x linuxdeploy-x86_64.AppImage
+
+        # Create AppImage
+        ./linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage
+      env:
+        APPIMAGE_EXTRACT_AND_RUN: 1
+
+    - name: Upload MakeMKV AppImage
+      uses: actions/upload-artifact@v3
+      with:
+        name: MakeMKV.AppImage
+        path: MakeMKV-*.AppImage
