@@ -21,7 +21,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential pkg-config qt5-qmake qtbase5-dev \
                                 libavcodec-dev libavutil-dev libavformat-dev \
-                                zlib1g-dev libexpat1-dev libssl-dev fuse2 squashfs-tools wget
+                                zlib1g-dev libexpat1-dev libssl-dev fuse squashfs-tools wget
 
     - name: Download MakeMKV source files
       run: |
