@@ -1,4 +1,4 @@
-name: Compile MakeMKV
+name: Compile MakeMKV and Upload Tarball
 
 on:
   push:
@@ -76,7 +76,20 @@ jobs:
         sudo make install
         cd ..
 
-    - name: Clean up
+    - name: Create tarball of compiled files
       run: |
-        # Remove downloaded source files to save space
-        rm -rf makemkv-oss-* makemkv-bin-*
+        # Create a directory to hold the compiled binaries and necessary files
+        mkdir -p makemkv_build
+
+        # Copy the compiled binaries and files to the directory
+        cp -r /usr/bin/makemkvcon makemkv_build/usr/bin/
+        cp -r /usr/share/makemkv makemkv_build/usr/share/
+
+        # Create a tarball of the compiled files
+        tar -czf makemkv.tar.gz -C makemkv_build .
+
+    - name: Upload MakeMKV tarball
+      uses: actions/upload-artifact@v3
+      with:
+        name: makemkv-build
+        path: makemkv.tar.gz
