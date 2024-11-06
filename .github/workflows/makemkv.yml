@@ -70,7 +70,8 @@ jobs:
 
         # Build binary package
         cd "$BIN_DIR"
-        make
+        # Automatically accept the EULA before proceeding
+        echo "yes" | make
         sudo make install
         cd ..
 
