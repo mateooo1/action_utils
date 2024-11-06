@@ -1,4 +1,4 @@
-name: Build MakeMKV AppImage
+name: Compile MakeMKV
 
 on:
   push:
@@ -21,14 +21,15 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential pkg-config qt5-qmake qtbase5-dev \
                                 libavcodec-dev libavutil-dev libavformat-dev \
-                                zlib1g-dev libexpat1-dev libssl-dev fuse squashfs-tools wget
+                                zlib1g-dev libexpat1-dev libssl-dev fuse squashfs-tools wget \
+                                libc6-dev
 
     - name: Download MakeMKV source files
       run: |
-        # Define URL to check for latest version
+        # Define URL to check for the latest version
         MAKEMKV_URL="https://forum.makemkv.com/forum/viewtopic.php?f=3&t=224"
 
-        # Define function to download latest MakeMKV
+        # Define function to download the latest MakeMKV
         get_makemkv() {
           local _dir="$1"
           [ "" == "$_dir" ] && _dir='.'
@@ -75,23 +76,7 @@ jobs:
         sudo make install
         cd ..
 
-    - name: Package MakeMKV as AppImage
+    - name: Clean up
       run: |
-        mkdir -p AppDir/usr
-        cp -r /usr/bin/makemkvcon AppDir/usr/bin/
-        cp -r /usr/share/makemkv AppDir/usr/share/
-
-        # Download linuxdeploy and AppImage tools
-        wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-        chmod +x linuxdeploy-x86_64.AppImage
-
-        # Create AppImage
-        ./linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage
-      env:
-        APPIMAGE_EXTRACT_AND_RUN: 1
-
-    - name: Upload MakeMKV AppImage
-      uses: actions/upload-artifact@v3
-      with:
-        name: MakeMKV.AppImage
-        path: MakeMKV-*.AppImage
+        # Remove downloaded source files to save space
+        rm -rf makemkv-oss-* makemkv-bin-*
