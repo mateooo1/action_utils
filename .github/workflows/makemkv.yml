@@ -78,10 +78,10 @@ jobs:
 
     - name: Create tarball of compiled files
       run: |
-        # Create a directory to hold the compiled binaries and necessary files
-        mkdir -p makemkv_build
+        # Create the directory structure for the tarball
+        mkdir -p makemkv_build/usr/bin makemkv_build/usr/share
 
-        # Copy the compiled binaries and files to the directory
+        # Copy the compiled binaries and files into the correct directory structure
         cp -r /usr/bin/makemkvcon makemkv_build/usr/bin/
         cp -r /usr/share/makemkv makemkv_build/usr/share/
 
